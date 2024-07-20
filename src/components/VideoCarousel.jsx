@@ -71,6 +71,7 @@ const VideoCarousel = () => {
           if (progress !== currentProgress) {
             currentProgress = progress
 
+            // 控制外层 div 的宽度（进度条的总长度）,效果是播放到的视频，下面的小圆点展开为长的进度条
             gsap.to(videoDivRef.current[videoId], {
               width:
                 window.innerWidth < 760
@@ -80,6 +81,7 @@ const VideoCarousel = () => {
                     : '4vw'
             })
 
+            // 控制进度条的宽度（随视频进度同步），即进度条往前走
             gsap.to(span[videoId], {
               width: `${currentProgress}%`,
               backgroundColor: 'white'
@@ -104,6 +106,8 @@ const VideoCarousel = () => {
         anim.restart()
       }
 
+      // 该函数用于计算进度，如果进度不匹配，则触发动画更新
+      // 而前面的 gsap.to() 则是用于动画的实际更新
       const animUpdate = () => {
         const cur = videoRef.current[videoId].currentTime
         const dur = hightlightsSlides[videoId].videoDuration
@@ -115,6 +119,8 @@ const VideoCarousel = () => {
       } else {
         gsap.ticker.remove(animUpdate)
       }
+
+      // 返回一个清除动画的函数，这里至关重要，否则在点击切换时会出现重复动画
       return () => gsap.ticker.remove(animUpdate)
     }
   }, [videoId, startPlay])
@@ -144,14 +150,8 @@ const VideoCarousel = () => {
         }))
         break
 
-      case 'play':
-        setVideo(prev => ({
-          ...prev,
-          isPlaying: !prev.isPlaying
-        }))
-        break
-
       case 'pause':
+      case 'play':
         setVideo(prev => ({
           ...prev,
           isPlaying: !prev.isPlaying
